@@ -16,9 +16,11 @@
 ## 特色
 
 - **螢幕不休眠**：執行期間螢幕和系統都不會因閒置而休眠（效果等同 `caffeinate -d`）。
-- **Teams 不顯示離開**：你閒置超過設定時間時，滑鼠會右移 1 像素再移回原位。
+- **Teams 不顯示離開**：新版 Teams 在螢幕鎖定或電腦睡眠時會切成「離開」。StayAwake 讓螢幕保護程式不會因閒置啟動，
+  螢幕也就不會被自動鎖定。
+- **閒置時微移滑鼠**：你閒置超過設定時間時，滑鼠會右移 1 像素再移回原位，系統閒置時間歸零。
   肉眼看不出來，游標也停在原處；你在用電腦時它完全不會動。
-- **可調整的閒置時間**：30 秒、1 分鐘（預設）、2 分鐘、4 分鐘，都短於 Teams 判定離開的 5 分鐘。
+- **可調整的閒置時間**：30 秒、1 分鐘（預設）、2 分鐘、4 分鐘，都短於常見的 5 分鐘閒置判定與螢幕保護程式時間。
 - **常駐選單列**：不佔 Dock，一鍵暫停／恢復。
 - 約 200 行原生 Swift，沒有第三方套件。
 
@@ -55,7 +57,7 @@ curl -fsSL -o /tmp/StayAwake.zip https://github.com/sean1093/StayAwake/releases/
    xattr -dr com.apple.quarantine /Applications/StayAwake.app
    ```
 
-### 授予「輔助使用」權限（必要）
+### 授予「輔助使用」權限（移動滑鼠需要）
 
 macOS 規定 App 必須取得「輔助使用」權限才能移動滑鼠。
 
@@ -97,16 +99,20 @@ StayAwake 運作中
 
 ## 運作原理
 
-- **防止休眠**：透過 `ProcessInfo.beginActivity(options: [.userInitiated, .idleDisplaySleepDisabled])`
-  持有 `PreventUserIdleDisplaySleep` 與 `PreventUserIdleSystemSleep`。可以用這行確認：
+- **防止休眠與自動鎖定**：透過 `ProcessInfo.beginActivity(options: [.userInitiated, .idleDisplaySleepDisabled])`
+  持有 `PreventUserIdleDisplaySleep` 與 `PreventUserIdleSystemSleep`。持有期間 macOS 不會因閒置啟動螢幕保護程式
+  （`loginwindow` 會記錄 `PMNoDisplaySleepEnabled so do not launch screen saver`），螢幕也就不會因此被鎖定。可以用這行確認：
 
   ```sh
   pmset -g assertions | grep StayAwake
   ```
 
-- **讓 Teams 保持在線**：Teams 判斷「離開」看的是系統的閒置時間（最後一次鍵盤或滑鼠輸入到現在多久），
-  光是防止休眠不會重設它。StayAwake 每 5 秒讀一次閒置時間，超過門檻就在 HID 層送出
-  「右移 1 像素、再移回原位」兩個滑鼠事件，系統閒置時間會歸零。
+- **閒置時間歸零**：StayAwake 每 5 秒讀一次系統閒置時間（最後一次鍵盤或滑鼠輸入到現在多久），超過門檻就在 HID 層送出
+  「右移 1 像素、再移回原位」兩個滑鼠事件，閒置時間歸零。以閒置時間判斷在線狀態的 App 也會因此把你當成在線。
+
+**實測**：在公司 MDM 強制「閒置 5 分鐘啟動螢幕保護程式並立即鎖定」的 MacBook（macOS 26、新版 Teams）上，
+沒開 StayAwake 時閒置滿 300 秒，螢幕保護程式啟動並鎖定，Teams 約一秒內變成「離開」；
+開著 StayAwake 不碰電腦 6 分鐘，螢幕沒有鎖定、Teams 一直是「有空」，滑鼠約每 65 秒微移一次。
 
 ## 常見問題
 

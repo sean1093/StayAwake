@@ -16,9 +16,11 @@
 ## Features
 
 - **Display stays on**: while running, neither the display nor the system sleeps on idle (same effect as `caffeinate -d`).
-- **Teams stays "Available"**: once you have been idle for the configured time, the mouse moves 1 pixel right and straight back.
-  You cannot see it and the cursor ends where it was; while you are using the Mac it never moves.
-- **Adjustable idle time**: 30 seconds, 1 minute (default), 2 minutes, 4 minutes, all shorter than the 5 minutes Teams waits before showing "Away".
+- **Teams stays "Available"**: new Teams switches to "Away" when the screen locks or the Mac sleeps. StayAwake keeps the idle
+  screen saver from starting, so the screen never locks on its own.
+- **Mouse nudge while idle**: once you have been idle for the configured time, the mouse moves 1 pixel right and straight back,
+  resetting the system idle time. You cannot see it and the cursor ends where it was; while you are using the Mac it never moves.
+- **Adjustable idle time**: 30 seconds, 1 minute (default), 2 minutes, 4 minutes, all under the common 5-minute idle cutoff for presence and screen savers.
 - **Lives in the menu bar**: no Dock icon, one click to pause or resume.
 - About 200 lines of native Swift, no third-party dependencies.
 
@@ -55,7 +57,7 @@ If you cannot write to `/Applications` (no admin rights), replace both `/Applica
    xattr -dr com.apple.quarantine /Applications/StayAwake.app
    ```
 
-### Grant Accessibility permission (required)
+### Grant Accessibility permission (needed to move the mouse)
 
 macOS only lets apps move the mouse after you grant them Accessibility permission.
 
@@ -93,16 +95,21 @@ The menu is in Traditional Chinese:
 
 ## How it works
 
-- **No sleep**: `ProcessInfo.beginActivity(options: [.userInitiated, .idleDisplaySleepDisabled])`
-  holds `PreventUserIdleDisplaySleep` and `PreventUserIdleSystemSleep`. Check it with:
+- **No sleep, no auto-lock**: `ProcessInfo.beginActivity(options: [.userInitiated, .idleDisplaySleepDisabled])`
+  holds `PreventUserIdleDisplaySleep` and `PreventUserIdleSystemSleep`. While it is held, macOS does not start the idle screen saver
+  (`loginwindow` logs `PMNoDisplaySleepEnabled so do not launch screen saver`), so the screen is not locked by it. Check it with:
 
   ```sh
   pmset -g assertions | grep StayAwake
   ```
 
-- **Teams stays online**: Teams decides you are "Away" from the system idle time (time since the last keyboard or mouse input).
-  Preventing sleep does not reset it. Every 5 seconds StayAwake reads the idle time; past the threshold it posts two HID-level
-  mouse events, 1 pixel right and back, which resets the system idle time to zero.
+- **Idle time reset**: every 5 seconds StayAwake reads the system idle time (time since the last keyboard or mouse input); past the
+  threshold it posts two HID-level mouse events, 1 pixel right and back, which resets it to zero. Apps that judge presence by idle
+  time therefore see you as active.
+
+**Tested** on a MacBook (macOS 26, new Teams) whose MDM starts the screen saver after 5 idle minutes and locks immediately:
+without StayAwake the screen locked at 300 seconds and Teams went "Away" within about a second; with StayAwake, 6 hands-off
+minutes passed with no lock, Teams stayed "Available", and the mouse was nudged about every 65 seconds.
 
 ## FAQ
 
