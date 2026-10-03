@@ -25,6 +25,16 @@ jobs:
       - name: Test
         run: swift test
 
+      - name: Check version stamping
+        run: |
+          set -euo pipefail
+          ./build.sh v9.8.7
+          plist=build/StayAwake.app/Contents/Info.plist
+          [[ "$(plutil -extract CFBundleShortVersionString raw "$plist")" == 9.8.7 ]]
+          [[ "$(plutil -extract CFBundleVersion raw "$plist")" == 9.8.7 ]]
+          codesign --verify --strict build/StayAwake.app
+          if ./build.sh 1.2.3.4; then echo "invalid version was accepted" >&2; exit 1; fi
+
       - name: Build universal app
         run: ./build.sh
 
