@@ -14,7 +14,7 @@ jobs:
   build-and-test:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Swift version
         run: swift --version
@@ -39,7 +39,7 @@ jobs:
           codesign --verify --strict --verbose=2 build/StayAwake.app
           unzip -l build/StayAwake.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: StayAwake
           path: build/StayAwake.zip
