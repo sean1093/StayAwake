@@ -77,17 +77,22 @@ After launch StayAwake sits in the menu bar at the top right of the screen and s
 | Outlined coffee cup | Paused: normal sleep settings apply again |
 | ⚠️ Triangle | Accessibility not granted: display still stays on, but the mouse is not nudged |
 
-The menu is in Traditional Chinese:
+The menu follows your system language: Traditional Chinese if Chinese is your preferred language, English otherwise.
 
-| Menu item | Meaning |
-|---|---|
-| StayAwake 運作中 / 已暫停 | Status: running / paused |
-| 上次移動滑鼠：… | Time of the last mouse nudge, so you can see it is working |
-| 保持清醒 | Keep awake (checked = running, uncheck to pause) |
-| 閒置多久後移動滑鼠 ▸ 30 秒 / 1 分鐘 / 2 分鐘 / 4 分鐘 | Nudge the mouse after being idle for 30 s / 1 / 2 / 4 min (remembered) |
-| ⚠️ 尚未授權「輔助使用」，滑鼠不會移動 | Accessibility not granted, the mouse will not move |
-| 開啟「輔助使用」設定… | Open the Accessibility settings |
-| 結束 StayAwake (⌘Q) | Quit |
+```
+StayAwake is running
+Last mouse nudge: 3:41:36 PM
+──────────────────────
+✓ Keep Awake
+  Nudge Mouse After Idle For  ▸  30 seconds / ✓1 minute / 2 minutes / 4 minutes
+──────────────────────
+  Quit StayAwake              ⌘Q
+```
+
+- **Keep Awake**: checked = running, uncheck to pause.
+- **Nudge Mouse After Idle For**: once you have not touched the keyboard or mouse for this long, the mouse is nudged. The choice is remembered.
+- **Last mouse nudge**: time of the most recent nudge, so you can see it is working.
+- Without Accessibility permission the menu also shows a warning and **Open Accessibility Settings…**.
 
 ### Start at login
 
@@ -133,7 +138,7 @@ No. It only moves the mouse after you have been idle for the configured time, an
 
 ## Update
 
-1. Choose **結束 StayAwake** (Quit) from the menu.
+1. Choose **Quit StayAwake** from the menu.
 2. Clear the old grant (each version has a different signature, so the old grant does not apply):
 
    ```sh
