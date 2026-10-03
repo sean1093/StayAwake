@@ -130,6 +130,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 SMAppService.openSystemSettingsLoginItems()
             default:
                 try service.register()
+                // 使用者曾在系統設定關掉、或受管理的 Mac 要求核准時，登記成功後仍需手動打開。
+                if service.status == .requiresApproval {
+                    SMAppService.openSystemSettingsLoginItems()
+                }
             }
         } catch {
             let alert = NSAlert()
