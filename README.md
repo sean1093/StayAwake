@@ -189,13 +189,16 @@ build.sh              build, sign, package
 
 ### Publishing a release
 
-1. Bump `CFBundleShortVersionString` in `Info.plist`.
-2. Build and upload to a GitHub Release. Keep the asset name `StayAwake.zip` so the install command always fetches the latest version:
+Push a version tag. The **Release** workflow tests, builds the universal app with the tag's version written into
+`Info.plist`, and uploads `StayAwake.zip` to the GitHub Release (the asset name stays the same, so the install command always
+fetches the latest version):
 
-   ```sh
-   ./build.sh
-   gh release create v1.0.1 build/StayAwake.zip --title "v1.0.1" --notes "What changed"
-   ```
+```sh
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+To build a specific version locally, pass it to the script: `./build.sh 1.0.1`. Without an argument it uses the version in `Info.plist`.
 
 ## License
 
