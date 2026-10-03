@@ -39,7 +39,7 @@ jobs:
           codesign --verify --strict --verbose=2 build/StayAwake.app
           unzip -l build/StayAwake.zip
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: StayAwake
           path: build/StayAwake.zip
