@@ -168,11 +168,16 @@ open build/StayAwake.app
 `build.sh` 會編譯 arm64 與 x86_64 兩種架構、合併成 universal binary、做 ad-hoc 簽章，
 產出 `build/StayAwake.app` 和 `build/StayAwake.zip`。重新編譯後簽章通常會改變，若圖示又變回 ⚠️，請見[常見問題](#常見問題)。
 
+用 `swift test` 執行單元測試。每次 push 與 pull request，CI 都會跑編譯、測試和 `./build.sh`。
+
 ```
-Sources/StayAwake/
+Sources/StayAwakeCore/
   KeepAwake.swift     防止休眠、偵測閒置、移動滑鼠
+Sources/StayAwake/
   AppDelegate.swift   選單列介面
   main.swift          進入點
+Tests/StayAwakeCoreTests/
+                      單元測試（swift test）
 Info.plist            App 設定（LSUIElement：不顯示在 Dock）
 build.sh              編譯、簽章、打包
 ```

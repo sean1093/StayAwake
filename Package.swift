@@ -5,6 +5,8 @@ let package = Package(
     name: "StayAwake",
     platforms: [.macOS(.v13)],
     targets: [
-        .executableTarget(name: "StayAwake"),
+        .target(name: "StayAwakeCore"),
+        .executableTarget(name: "StayAwake", dependencies: ["StayAwakeCore"]),
+        .testTarget(name: "StayAwakeCoreTests", dependencies: ["StayAwakeCore"]),
     ]
 )

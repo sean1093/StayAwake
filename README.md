@@ -165,11 +165,16 @@ open build/StayAwake.app
 `build.sh` compiles arm64 and x86_64, merges them into a universal binary, signs it ad hoc,
 and produces `build/StayAwake.app` and `build/StayAwake.zip`. A rebuild usually changes the signature; if the ⚠️ icon comes back, see the [FAQ](#faq).
 
+Run the unit tests with `swift test`. CI runs the build, the tests and `./build.sh` on every push and pull request.
+
 ```
-Sources/StayAwake/
+Sources/StayAwakeCore/
   KeepAwake.swift     prevents sleep, detects idleness, nudges the mouse
+Sources/StayAwake/
   AppDelegate.swift   menu bar UI
   main.swift          entry point
+Tests/StayAwakeCoreTests/
+                      unit tests (swift test)
 Info.plist            app settings (LSUIElement: no Dock icon)
 build.sh              build, sign, package
 ```

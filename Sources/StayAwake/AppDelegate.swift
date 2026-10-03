@@ -1,4 +1,5 @@
 import AppKit
+import StayAwakeCore
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
