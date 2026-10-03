@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Test
+        run: swift test
+
+      - name: Build universal app
+        run: ./build.sh "$GITHUB_REF_NAME"
+
+      - name: Verify app bundle
+        run: |
+          set -euo pipefail
+          plist=build/StayAwake.app/Contents/Info.plist
+          [[ "$(plutil -extract CFBundleShortVersionString raw "$plist")" == "${GITHUB_REF_NAME#v}" ]]
+          archs=$(lipo -archs build/StayAwake.app/Contents/MacOS/StayAwake)
+          [[ "$archs" == *arm64* && "$archs" == *x86_64* ]]
+          codesign --verify --strict --verbose=2 build/StayAwake.app
+
+      # 已有同名 Release（例如先在網頁上寫好說明）就只替換附件，否則新建一個。
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" build/StayAwake.zip --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$GITHUB_REF_NAME" build/StayAwake.zip \
+              --title "$GITHUB_REF_NAME" --generate-notes --verify-tag --repo "$GITHUB_REPOSITORY"
+          fi

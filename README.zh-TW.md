@@ -187,13 +187,15 @@ build.sh              編譯、簽章、打包
 
 ### 發布新版本
 
-1. 修改 `Info.plist` 的 `CFBundleShortVersionString`。
-2. 編譯並上傳到 GitHub Release（檔名維持 `StayAwake.zip`，安裝指令的下載連結才會一直指向最新版）：
+推一個版本 tag 即可。**Release** workflow 會跑測試、用 tag 的版本號編譯 universal App（寫進 `Info.plist`），
+再把 `StayAwake.zip` 上傳到 GitHub Release（檔名不變，安裝指令的下載連結才會一直指向最新版）：
 
-   ```sh
-   ./build.sh
-   gh release create v1.0.1 build/StayAwake.zip --title "v1.0.1" --notes "更新內容"
-   ```
+```sh
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+在本機要編譯特定版本，就把版本號傳給腳本：`./build.sh 1.0.1`；不帶參數則使用 `Info.plist` 裡的版本。
 
 ## 授權
 
