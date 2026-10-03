@@ -21,7 +21,7 @@
 - **Mouse nudge while idle**: once you have been idle for the configured time, the mouse moves 1 pixel right and straight back,
   resetting the system idle time. You cannot see it and the cursor ends where it was; while you are using the Mac it never moves.
 - **Adjustable idle time**: 30 seconds, 1 minute (default), 2 minutes, 4 minutes, all under the common 5-minute idle cutoff for presence and screen savers.
-- **Lives in the menu bar**: no Dock icon, one click to pause or resume.
+- **Lives in the menu bar**: no Dock icon, one click to pause or resume, optional start at login.
 - About 200 lines of native Swift, no third-party dependencies.
 
 ## Requirements
@@ -85,18 +85,21 @@ Last mouse nudge: 3:41:36 PM
 ──────────────────────
 ✓ Keep Awake
   Nudge Mouse After Idle For  ▸  30 seconds / ✓1 minute / 2 minutes / 4 minutes
+  Open at Login
 ──────────────────────
   Quit StayAwake              ⌘Q
 ```
 
 - **Keep Awake**: checked = running, uncheck to pause.
 - **Nudge Mouse After Idle For**: once you have not touched the keyboard or mouse for this long, the mouse is nudged. The choice is remembered.
+- **Open at Login**: start StayAwake automatically when you log in.
 - **Last mouse nudge**: time of the most recent nudge, so you can see it is working.
 - Without Accessibility permission the menu also shows a warning and **Open Accessibility Settings…**.
 
 ### Start at login
 
-**System Settings → General → Login Items** (called "Login Items & Extensions" on newer macOS), click **+** under "Open at Login", and pick StayAwake.
+Check **Open at Login** in the StayAwake menu. You can also turn it off later under **System Settings → General → Login Items** (called "Login Items & Extensions" on newer macOS).
+If the item shows a dash (–), StayAwake is registered but turned off in System Settings; choose it again to open that page and turn it back on.
 
 ## How it works
 

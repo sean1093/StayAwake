@@ -31,6 +31,8 @@ public struct Strings: Sendable, Equatable {
     public let idleThresholdMenu: String
     public let permissionMissing: String
     public let openAccessibilitySettings: String
+    public let openAtLogin: String
+    public let openAtLoginFailed: String
     public let quit: String
     public let needsPermission: String
     let secondsFormat: String
@@ -45,6 +47,8 @@ public struct Strings: Sendable, Equatable {
         idleThresholdMenu: "Nudge Mouse After Idle For",
         permissionMissing: "⚠️ Accessibility not granted, the mouse won't move",
         openAccessibilitySettings: "Open Accessibility Settings…",
+        openAtLogin: "Open at Login",
+        openAtLoginFailed: "Couldn't change Open at Login",
         quit: "Quit StayAwake",
         needsPermission: "StayAwake needs Accessibility permission",
         secondsFormat: "%ld seconds",
@@ -60,6 +64,8 @@ public struct Strings: Sendable, Equatable {
         idleThresholdMenu: "閒置多久後移動滑鼠",
         permissionMissing: "⚠️ 尚未授權「輔助使用」，滑鼠不會移動",
         openAccessibilitySettings: "開啟「輔助使用」設定…",
+        openAtLogin: "登入時自動開啟",
+        openAtLoginFailed: "無法變更「登入時自動開啟」",
         quit: "結束 StayAwake",
         needsPermission: "StayAwake 需要「輔助使用」權限",
         secondsFormat: "%ld 秒",

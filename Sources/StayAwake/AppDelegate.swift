@@ -1,4 +1,5 @@
 import AppKit
+import ServiceManagement
 import StayAwakeCore
 
 @MainActor
@@ -64,6 +65,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         menu.addItem(withTitle: strings.idleThresholdMenu, action: nil, keyEquivalent: "").submenu = thresholdMenu
 
+        // 每次打開選單都重新讀取：使用者也可能在系統設定裡改。
+        let loginItem = menu.addItem(withTitle: strings.openAtLogin, action: #selector(toggleOpenAtLogin), keyEquivalent: "")
+        loginItem.target = self
+        loginItem.state = switch SMAppService.mainApp.status {
+        case .enabled: .on
+        case .requiresApproval: .mixed
+        default: .off
+        }
+
         if !keepAwake.canPostEvents {
             menu.addItem(.separator())
             menu.addItem(withTitle: strings.permissionMissing, action: nil, keyEquivalent: "")
@@ -107,6 +117,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func selectIdleThreshold(_ sender: NSMenuItem) {
         keepAwake.idleThreshold = TimeInterval(sender.tag)
         UserDefaults.standard.set(keepAwake.idleThreshold, forKey: Self.idleThresholdKey)
+    }
+
+    @objc private func toggleOpenAtLogin() {
+        let service = SMAppService.mainApp
+        do {
+            switch service.status {
+            case .enabled:
+                try service.unregister()
+            case .requiresApproval:
+                // 已登記但被使用者在系統設定關掉，只能請使用者自己打開。
+                SMAppService.openSystemSettingsLoginItems()
+            default:
+                try service.register()
+                // 使用者曾在系統設定關掉、或受管理的 Mac 要求核准時，登記成功後仍需手動打開。
+                if service.status == .requiresApproval {
+                    SMAppService.openSystemSettingsLoginItems()
+                }
+            }
+        } catch {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = strings.openAtLoginFailed
+            alert.informativeText = error.localizedDescription
+            // 沒有 Dock 圖示的 App 要先啟用，對話框才會出現在最前面。
+            NSApp.activate(ignoringOtherApps: true)
+            alert.runModal()
+        }
     }
 
     @objc private func openAccessibilitySettings() {
