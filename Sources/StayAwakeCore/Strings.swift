@@ -47,9 +47,9 @@ public struct Strings: Sendable, Equatable {
         openAccessibilitySettings: "Open Accessibility Settings…",
         quit: "Quit StayAwake",
         needsPermission: "StayAwake needs Accessibility permission",
-        secondsFormat: "%d seconds",
+        secondsFormat: "%ld seconds",
         oneMinute: "1 minute",
-        minutesFormat: "%d minutes"
+        minutesFormat: "%ld minutes"
     )
 
     public static let traditionalChinese = Strings(
@@ -62,9 +62,9 @@ public struct Strings: Sendable, Equatable {
         openAccessibilitySettings: "開啟「輔助使用」設定…",
         quit: "結束 StayAwake",
         needsPermission: "StayAwake 需要「輔助使用」權限",
-        secondsFormat: "%d 秒",
+        secondsFormat: "%ld 秒",
         oneMinute: "1 分鐘",
-        minutesFormat: "%d 分鐘"
+        minutesFormat: "%ld 分鐘"
     )
 
     public static func `for`(_ language: Language) -> Strings {
