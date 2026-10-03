@@ -4,7 +4,6 @@ import StayAwakeCore
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private static let idleThresholdKey = "idleThreshold"
-    private static let idleThresholdChoices: [TimeInterval] = [30, 60, 120, 240]
     private static let accessibilitySettingsURL = URL(
         string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
     )!
@@ -14,8 +13,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem?
 
     override init() {
-        UserDefaults.standard.register(defaults: [Self.idleThresholdKey: 60.0])
-        keepAwake = KeepAwake(idleThreshold: UserDefaults.standard.double(forKey: Self.idleThresholdKey))
+        let defaults = UserDefaults.standard
+        defaults.register(defaults: [Self.idleThresholdKey: IdleThreshold.defaultValue])
+        let stored = defaults.double(forKey: Self.idleThresholdKey)
+        let idleThreshold = IdleThreshold.sanitized(stored)
+        if idleThreshold != stored {
+            defaults.set(idleThreshold, forKey: Self.idleThresholdKey)
+        }
+        keepAwake = KeepAwake(idleThreshold: idleThreshold)
         super.init()
     }
 
@@ -47,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         toggle.state = keepAwake.isRunning ? .on : .off
 
         let thresholdMenu = NSMenu()
-        for seconds in Self.idleThresholdChoices {
+        for seconds in IdleThreshold.choices {
             let item = thresholdMenu.addItem(
                 withTitle: strings.idleThresholdTitle(seconds: seconds),
                 action: #selector(selectIdleThreshold(_:)),
