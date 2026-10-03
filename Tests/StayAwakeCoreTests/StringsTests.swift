@@ -61,4 +61,18 @@ final class StringsTests: XCTestCase {
         XCTAssertEqual(Strings.traditionalChinese.idleThresholdTitle(seconds: 60), "1 分鐘")
         XCTAssertEqual(Strings.traditionalChinese.idleThresholdTitle(seconds: 240), "4 分鐘")
     }
+
+    func testDurationTitles() {
+        XCTAssertEqual(Strings.english.durationTitle(seconds: 3600), "1 hour")
+        XCTAssertEqual(Strings.english.durationTitle(seconds: 7200), "2 hours")
+        XCTAssertEqual(Strings.english.durationTitle(seconds: 28800), "8 hours")
+        XCTAssertEqual(Strings.english.durationTitle(seconds: 1800), "30 minutes")
+        XCTAssertEqual(Strings.traditionalChinese.durationTitle(seconds: 3600), "1 小時")
+        XCTAssertEqual(Strings.traditionalChinese.durationTitle(seconds: 14400), "4 小時")
+    }
+
+    func testActiveUntil() {
+        XCTAssertEqual(Strings.english.activeUntil("17:30"), "Until 17:30")
+        XCTAssertEqual(Strings.traditionalChinese.activeUntil("17:30"), "持續到 17:30")
+    }
 }

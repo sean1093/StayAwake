@@ -9,12 +9,14 @@ final class KeepAwakeTests: XCTestCase {
         var idleSeconds: TimeInterval = 0
         var isTrusted = true
         var nudges = 0
+        var now = Date(timeIntervalSinceReferenceDate: 0)
 
         var environment: KeepAwake.Environment {
             KeepAwake.Environment(
                 idleSeconds: { self.idleSeconds },
                 isTrusted: { self.isTrusted },
-                nudge: { self.nudges += 1 }
+                nudge: { self.nudges += 1 },
+                now: { self.now }
             )
         }
     }
@@ -141,5 +143,93 @@ final class KeepAwakeTests: XCTestCase {
 
         keepAwake.refreshPermission()
         XCTAssertEqual(changes.count, 1)
+    }
+
+    func testStartWithoutDurationHasNoEndDate() {
+        let keepAwake = makeKeepAwake(FakeSystem())
+        keepAwake.start()
+        defer { keepAwake.stop() }
+
+        XCTAssertNil(keepAwake.endDate)
+    }
+
+    func testTimedStartStopsAtEndDate() {
+        let system = FakeSystem()
+        let keepAwake = makeKeepAwake(system)
+        let changes = Counter()
+        keepAwake.onStateChange = { changes.count += 1 }
+        keepAwake.start(for: 3600)
+        defer { keepAwake.stop() }
+
+        XCTAssertEqual(keepAwake.endDate, system.now.addingTimeInterval(3600))
+        XCTAssertEqual(changes.count, 1)
+
+        system.now = system.now.addingTimeInterval(3599)
+        keepAwake.tick()
+        XCTAssertTrue(keepAwake.isRunning)
+
+        system.now = system.now.addingTimeInterval(1)
+        keepAwake.tick()
+        XCTAssertFalse(keepAwake.isRunning)
+        XCTAssertNil(keepAwake.endDate)
+        XCTAssertEqual(changes.count, 2)
+    }
+
+    func testDoesNotNudgeOnceTimeIsUp() {
+        let system = FakeSystem()
+        system.idleSeconds = 600
+        let keepAwake = makeKeepAwake(system)
+        keepAwake.start(for: 60)
+        defer { keepAwake.stop() }
+
+        system.now = system.now.addingTimeInterval(120) // 例如闔上螢幕休眠後醒來
+        keepAwake.tick()
+        XCTAssertEqual(system.nudges, 0)
+        XCTAssertFalse(keepAwake.isRunning)
+    }
+
+    func testStartWhileRunningReplacesEndDate() {
+        let system = FakeSystem()
+        let keepAwake = makeKeepAwake(system)
+        let changes = Counter()
+        keepAwake.onStateChange = { changes.count += 1 }
+        keepAwake.start(for: 3600)
+        defer { keepAwake.stop() }
+
+        system.now = system.now.addingTimeInterval(600)
+        keepAwake.start(for: 7200)
+        XCTAssertEqual(keepAwake.endDate, system.now.addingTimeInterval(7200))
+        XCTAssertEqual(changes.count, 2)
+
+        keepAwake.start() // 改成不限時
+        XCTAssertNil(keepAwake.endDate)
+        XCTAssertEqual(changes.count, 3)
+
+        keepAwake.start() // 沒有變化就不通知
+        XCTAssertEqual(changes.count, 3)
+    }
+
+    func testStopClearsEndDate() {
+        let keepAwake = makeKeepAwake(FakeSystem())
+        keepAwake.start(for: 3600)
+        keepAwake.stop()
+
+        XCTAssertNil(keepAwake.endDate)
+    }
+
+    func testLastJiggleUsesEnvironmentClock() {
+        let system = FakeSystem()
+        system.idleSeconds = 600
+        let keepAwake = makeKeepAwake(system)
+        keepAwake.start()
+        defer { keepAwake.stop() }
+
+        keepAwake.tick()
+        XCTAssertEqual(keepAwake.lastJiggle, system.now)
+    }
+
+    func testTimedDurationsAreWholeHours() {
+        XCTAssertFalse(KeepAwake.timedDurations.isEmpty)
+        XCTAssertTrue(KeepAwake.timedDurations.allSatisfy { $0 > 0 && $0.truncatingRemainder(dividingBy: 3600) == 0 })
     }
 }
