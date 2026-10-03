@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
+      - name: Build universal app
+        run: ./build.sh
+
+      - name: Verify app bundle
+        run: |
+          set -euo pipefail
+          bin=build/StayAwake.app/Contents/MacOS/StayAwake
+          archs=$(lipo -archs "$bin")
+          echo "Architectures: $archs"
+          [[ "$archs" == *arm64* && "$archs" == *x86_64* ]]
+          plutil -lint build/StayAwake.app/Contents/Info.plist
+          codesign --verify --strict --verbose=2 build/StayAwake.app
+          unzip -l build/StayAwake.zip
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: StayAwake
+          path: build/StayAwake.zip
