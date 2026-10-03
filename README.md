@@ -20,6 +20,7 @@
   screen saver from starting, so the screen never locks on its own.
 - **Mouse nudge while idle**: once you have been idle for the configured time, the mouse moves 1 pixel right and straight back,
   resetting the system idle time. You cannot see it and the cursor ends where it was; while you are using the Mac it never moves.
+- **Timed mode**: keep awake for 1, 2, 4 or 8 hours; when time is up, normal sleep and auto-lock come back, so a forgotten StayAwake never leaves your Mac unlocked overnight.
 - **Adjustable idle time**: 30 seconds, 1 minute (default), 2 minutes, 4 minutes, all under the common 5-minute idle cutoff for presence and screen savers.
 - **Lives in the menu bar**: no Dock icon, one click to pause or resume, optional start at login.
 - About 200 lines of native Swift, no third-party dependencies.
@@ -84,6 +85,7 @@ StayAwake is running
 Last mouse nudge: 3:41:36 PM
 ──────────────────────
 ✓ Keep Awake
+  Keep Awake For              ▸  1 hour / 2 hours / 4 hours / 8 hours
   Nudge Mouse After Idle For  ▸  30 seconds / ✓1 minute / 2 minutes / 4 minutes
   Open at Login
 ──────────────────────
@@ -91,6 +93,8 @@ Last mouse nudge: 3:41:36 PM
 ```
 
 - **Keep Awake**: checked = running, uncheck to pause.
+- **Keep Awake For**: run for a fixed time, then pause automatically. The menu shows "Until 17:30" while a timer is active.
+  Choosing again replaces the end time; checking **Keep Awake** while paused runs with no time limit.
 - **Nudge Mouse After Idle For**: once you have not touched the keyboard or mouse for this long, the mouse is nudged. The choice is remembered.
 - **Open at Login**: start StayAwake automatically when you log in.
 - **Last mouse nudge**: time of the most recent nudge, so you can see it is working.

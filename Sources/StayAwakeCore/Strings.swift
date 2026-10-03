@@ -28,6 +28,9 @@ public struct Strings: Sendable, Equatable {
     /// `%@` 換成時間。
     public let lastNudgeFormat: String
     public let keepAwake: String
+    public let keepAwakeFor: String
+    /// `%@` 換成結束時間。
+    public let activeUntilFormat: String
     public let idleThresholdMenu: String
     public let permissionMissing: String
     public let openAccessibilitySettings: String
@@ -38,12 +41,16 @@ public struct Strings: Sendable, Equatable {
     let secondsFormat: String
     let oneMinute: String
     let minutesFormat: String
+    let oneHour: String
+    let hoursFormat: String
 
     public static let english = Strings(
         statusRunning: "StayAwake is running",
         statusPaused: "StayAwake is paused",
         lastNudgeFormat: "Last mouse nudge: %@",
         keepAwake: "Keep Awake",
+        keepAwakeFor: "Keep Awake For",
+        activeUntilFormat: "Until %@",
         idleThresholdMenu: "Nudge Mouse After Idle For",
         permissionMissing: "⚠️ Accessibility not granted, the mouse won't move",
         openAccessibilitySettings: "Open Accessibility Settings…",
@@ -53,7 +60,9 @@ public struct Strings: Sendable, Equatable {
         needsPermission: "StayAwake needs Accessibility permission",
         secondsFormat: "%ld seconds",
         oneMinute: "1 minute",
-        minutesFormat: "%ld minutes"
+        minutesFormat: "%ld minutes",
+        oneHour: "1 hour",
+        hoursFormat: "%ld hours"
     )
 
     public static let traditionalChinese = Strings(
@@ -61,6 +70,8 @@ public struct Strings: Sendable, Equatable {
         statusPaused: "StayAwake 已暫停",
         lastNudgeFormat: "上次移動滑鼠：%@",
         keepAwake: "保持清醒",
+        keepAwakeFor: "保持清醒一段時間",
+        activeUntilFormat: "持續到 %@",
         idleThresholdMenu: "閒置多久後移動滑鼠",
         permissionMissing: "⚠️ 尚未授權「輔助使用」，滑鼠不會移動",
         openAccessibilitySettings: "開啟「輔助使用」設定…",
@@ -70,7 +81,9 @@ public struct Strings: Sendable, Equatable {
         needsPermission: "StayAwake 需要「輔助使用」權限",
         secondsFormat: "%ld 秒",
         oneMinute: "1 分鐘",
-        minutesFormat: "%ld 分鐘"
+        minutesFormat: "%ld 分鐘",
+        oneHour: "1 小時",
+        hoursFormat: "%ld 小時"
     )
 
     public static func `for`(_ language: Language) -> Strings {
@@ -85,6 +98,18 @@ public struct Strings: Sendable, Equatable {
 
     public func lastNudge(_ time: String) -> String {
         String(format: lastNudgeFormat, time)
+    }
+
+    public func activeUntil(_ time: String) -> String {
+        String(format: activeUntilFormat, time)
+    }
+
+    /// 限時選項的標題，例如「1 hour」、「4 小時」。
+    public func durationTitle(seconds: TimeInterval) -> String {
+        let seconds = Int(seconds)
+        guard seconds >= 3600, seconds % 3600 == 0 else { return idleThresholdTitle(seconds: TimeInterval(seconds)) }
+        let hours = seconds / 3600
+        return hours == 1 ? oneHour : String(format: hoursFormat, hours)
     }
 
     /// 閒置時間選項的標題，例如「30 seconds」、「2 分鐘」。

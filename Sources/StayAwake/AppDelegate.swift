@@ -42,6 +42,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // action 為 nil 的項目會自動變成灰色，當作狀態文字。
         menu.addItem(withTitle: keepAwake.isRunning ? strings.statusRunning : strings.statusPaused, action: nil, keyEquivalent: "")
+        if keepAwake.isRunning, let endDate = keepAwake.endDate {
+            let time = endDate.formatted(date: .omitted, time: .shortened)
+            menu.addItem(withTitle: strings.activeUntil(time), action: nil, keyEquivalent: "")
+        }
         if keepAwake.isRunning, let lastJiggle = keepAwake.lastJiggle {
             let time = lastJiggle.formatted(date: .omitted, time: .standard)
             menu.addItem(withTitle: strings.lastNudge(time), action: nil, keyEquivalent: "")
@@ -51,6 +55,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let toggle = menu.addItem(withTitle: strings.keepAwake, action: #selector(toggleRunning), keyEquivalent: "")
         toggle.target = self
         toggle.state = keepAwake.isRunning ? .on : .off
+
+        // 時間到就自動停止，恢復正常的休眠與自動鎖定。
+        let durationMenu = NSMenu()
+        for seconds in KeepAwake.timedDurations {
+            let item = durationMenu.addItem(
+                withTitle: strings.durationTitle(seconds: seconds),
+                action: #selector(selectDuration(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.tag = Int(seconds)
+        }
+        menu.addItem(withTitle: strings.keepAwakeFor, action: nil, keyEquivalent: "").submenu = durationMenu
 
         let thresholdMenu = NSMenu()
         for seconds in IdleThreshold.choices {
@@ -85,8 +102,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(withTitle: strings.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
-    private func start() {
-        keepAwake.start()
+    private func start(for duration: TimeInterval? = nil) {
+        keepAwake.start(for: duration)
         if !keepAwake.canPostEvents {
             // 跳出系統授權視窗，並把 App 加進「輔助使用」清單。
             // 鍵值即 kAXTrustedCheckOptionPrompt；Swift 6 不允許直接讀這個可變的 C 全域變數。
@@ -112,6 +129,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } else {
             start()
         }
+    }
+
+    @objc private func selectDuration(_ sender: NSMenuItem) {
+        start(for: TimeInterval(sender.tag))
     }
 
     @objc private func selectIdleThreshold(_ sender: NSMenuItem) {
